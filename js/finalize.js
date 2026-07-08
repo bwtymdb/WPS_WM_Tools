@@ -1,33 +1,36 @@
-// finalize.js —— 核心：把当前 Word 另存为「最终版」
-// 新版本中：接受所有修订、删除全部批注、删除全部图片；
+// finalize.js —— 「清理并另存为」核心逻辑
+// 把当前 Word 快照另存为新文件，按用户选项：接受修订 / 删批注 / 删图片（可选类型）；
 // 且原文件从不被写入、其修订状态保持不变。
 
-// —— 形状类型常量（参考 Office 对象模型；WPS 实际值在调试期核对）——
-var PIC_INLINE = { 3: 1, 4: 1, 9: 1, 10: 1, 11: 1 }; // wdInlineShape 图片类：图片/链接图片/水平线图片/图片项目符号
-var PIC_SHAPE = { 13: 1, 11: 1 };                     // msoPicture / msoLinkedPicture
-var MSO_GROUP = 6;                                    // msoGroup（组合，需递归）
-var HDR_PRIMARY = 1, HDR_FIRST = 2, HDR_EVEN = 3;     // 页眉页脚类型
+// —— 形状类型常量（已在 WPS 12.x COM 验证：内嵌图片=3，浮动图片=13）——
+var PIC_INLINE = { 3: 1, 4: 1, 9: 1, 10: 1, 11: 1 }; // wdInlineShape 图片类
+var PIC_SHAPE  = { 13: 1, 11: 1 };                     // msoPicture / msoLinkedPicture
+var MSO_GROUP  = 6;
+var HDR_PRIMARY = 1, HDR_FIRST = 2, HDR_EVEN = 3;
 
-function SaveFinalVersion() {
+// opts: { acceptRevisions, deleteComments, deletePictures,
+//         pic:{ inline, floating, headerFooter, inTextbox } }
+// 返回 true=已生成；false=未执行（无文档/用户取消）
+function SaveFinalVersion(opts) {
     var app = window.Application;
     var doc = app.ActiveDocument;
-    if (!doc) { alert("请先打开一个 Word 文档。"); return; }
+    if (!doc) { alert("请先打开一个 Word 文档。"); return false; }
 
-    var originalPath = doc.FullName || "";   // 原文件全路径（从未保存则为空）
+    var originalPath = doc.FullName || "";
 
-    // 1) 让用户确认输出路径（默认 原目录\原名_最终版.ext）
+    // 1) 让用户确认输出路径（默认 原目录\原名_清理版.ext）
     var outPath = pickOutputPath(app, originalPath, doc.Name);
-    if (!outPath) return;                    // 用户取消
+    if (!outPath) return false;
 
     // 2) 把当前文档快照到 outPath —— 原文件从不被写入
     doc.SaveAs2(outPath);
 
-    // 3) 处理新版本：先关闭修订记录（否则后续删除会变成"修订"而非真实删除）→ 接受修订 → 删批注 → 删图片
+    // 3) 按选项清理：先关修订记录，确保删除是真实删除
     try {
         doc.TrackRevisions = false;
-        acceptAllRevisions(doc);
-        deleteAllComments(doc);
-        deleteAllPictures(doc);
+        if (opts.acceptRevisions) acceptAllRevisions(doc);
+        if (opts.deleteComments)  deleteAllComments(doc);
+        if (opts.deletePictures)  deleteAllPictures(doc, opts.pic || {});
     } catch (e) {
         alert("清理过程出现异常（新版本仍已另存，可能未完全清理）：" + (e && e.message ? e.message : e));
     }
@@ -42,8 +45,8 @@ function SaveFinalVersion() {
 
     // 6) 把新版本窗口置前
     activateByPath(app, outPath);
-
-    alert("已生成最终版：\n" + outPath);
+    alert("已生成清理后的版本：\n" + outPath);
+    return true;
 }
 
 // —— 选择输出路径：循环直到与原文件不同，或用户取消 ——
@@ -53,13 +56,13 @@ function pickOutputPath(app, originalPath, docName) {
         try { fd.InitialFileName = buildDefaultName(originalPath, docName); } catch (e) {}
         var shown = -1;
         try { shown = fd.Show(); } catch (e) { return null; }
-        if (!shown) return null;    // 用户取消
+        if (!shown) return null;
         var out;
         try { out = fd.SelectedItems.Item(1); } catch (e) { return null; }
         if (!out) return null;
         if (samePath(out, originalPath)) {
             alert("不能覆盖原文件，请选择其它路径或文件名。");
-            continue;               // 重新选择
+            continue;
         }
         return out;
     }
@@ -75,13 +78,13 @@ function buildDefaultName(originalPath, docName) {
     var dot = base.lastIndexOf(".");
     var stem = dot > 0 ? base.substring(0, dot) : base;
     var ext = dot > 0 ? base.substring(dot) : ".docx";
-    var name = stem + "_最终版" + ext;
+    var name = stem + "_清理版" + ext;
     return dir ? (dir + "\\" + name) : name;
 }
 
 // —— 接受所有修订 ——
 function acceptAllRevisions(doc) {
-    try { doc.AcceptAllRevisions(); } catch (e) {}  // 无修订时为空操作
+    try { doc.AcceptAllRevisions(); } catch (e) {}
 }
 
 // —— 删除所有批注 ——
@@ -95,21 +98,23 @@ function deleteAllComments(doc) {
     }
 }
 
-// —— 删除所有图片：主文档 + 各节页眉/页脚 + 文本框/组合内（递归）——
-function deleteAllPictures(doc) {
-    cleanInline(doc.InlineShapes);
-    cleanShapes(doc.Shapes);
+// —— 删除图片（按类型）：主文档 + 各节页眉/页脚 + 文本框/组合内（递归）——
+// p: { inline, floating, headerFooter, inTextbox }
+function deleteAllPictures(doc, p) {
+    p = p || {};
+    if (p.inline) cleanInline(doc.InlineShapes);
+    traverseShapes(doc.Shapes, p.floating, p);
 
     var secs = doc.Sections;
     for (var s = 1; s <= secs.Count; s++) {
         var sec = secs.Item(s);
         eachHeaderFooter(sec.Headers, function (hf) {
-            try { cleanInline(hf.Range.InlineShapes); } catch (e) {}
-            try { cleanShapes(hf.Shapes); } catch (e) {}
+            if (p.headerFooter) { try { cleanInline(hf.Range.InlineShapes); } catch (e) {} }
+            try { traverseShapes(hf.Shapes, p.headerFooter, p); } catch (e) {}
         });
         eachHeaderFooter(sec.Footers, function (hf) {
-            try { cleanInline(hf.Range.InlineShapes); } catch (e) {}
-            try { cleanShapes(hf.Shapes); } catch (e) {}
+            if (p.headerFooter) { try { cleanInline(hf.Range.InlineShapes); } catch (e) {} }
+            try { traverseShapes(hf.Shapes, p.headerFooter, p); } catch (e) {}
         });
     }
 }
@@ -123,7 +128,7 @@ function eachHeaderFooter(col, fn) {
     }
 }
 
-//删除 InlineShapes 中类型为图片者（保留图表/OLE/SmartArt）
+//删除集合中类型为图片的 InlineShape（保留图表/OLE/SmartArt）
 function cleanInline(shapes) {
     if (!shapes) return;
     for (var i = shapes.Count; i >= 1; i--) {
@@ -133,37 +138,35 @@ function cleanInline(shapes) {
     }
 }
 
-//遍历 Shapes：删除图片，递归组合与文本框
-function cleanShapes(shapes) {
+//floatingFlag: 当前上下文中是否删除"直接图片"（正文=floating，页眉页脚=headerFooter，文本框内=inTextbox）
+function traverseShapes(shapes, floatingFlag, p) {
     if (!shapes) return;
     for (var i = shapes.Count; i >= 1; i--) {
         var sh;
         try { sh = shapes.Item(i); } catch (e) { continue; }
-        cleanOneShape(sh);
+        visitShape(sh, floatingFlag, p);
     }
 }
 
-function cleanOneShape(sh) {
+function visitShape(sh, floatingFlag, p) {
     var t;
     try { t = sh.Type; } catch (e) { return; }
-    if (PIC_SHAPE[t]) { try { sh.Delete(); } catch (e) {} return; }
-    //组合：递归子形状
-    if (t === MSO_GROUP) {
+    if (PIC_SHAPE[t]) { if (floatingFlag) { try { sh.Delete(); } catch (e) {} } return; }
+    if (t === MSO_GROUP) {                                   // 组合：按同一上下文递归子形状
         try {
             var gi = sh.GroupItems;
-            for (var i = gi.Count; i >= 1; i--) {
-                try { cleanOneShape(gi.Item(i)); } catch (e) {}
-            }
+            for (var i = gi.Count; i >= 1; i--) { try { visitShape(gi.Item(i), floatingFlag, p); } catch (e) {} }
         } catch (e) {}
     }
-    //文本框等带文字的形状：递归删除其文字范围里的图片
-    try {
-        var tr = sh.TextFrame.TextRange;
-        if (tr) { cleanInline(tr.InlineShapes); cleanShapes(tr.Shapes); }
-    } catch (e) {}
+    if (p.inTextbox) {                                       // 文本框等带文字形状：递归删除其文字范围里的图片
+        try {
+            var tr = sh.TextFrame.TextRange;
+            if (tr) { cleanInline(tr.InlineShapes); traverseShapes(tr.Shapes, p.inTextbox, p); }
+        } catch (e) {}
+    }
 }
 
-// —— 工具：路径比较（大小写、斜杠无关）——
+// —— 工具 ——
 function samePath(a, b) {
     if (!a || !b) return false;
     function norm(p) { return String(p).toLowerCase().replace(/\//g, "\\"); }

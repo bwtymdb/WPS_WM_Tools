@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="../js/finalize.js"></script>
+    <script type="text/javascript" src="../js/options.js"></script>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            font-size: 13px;
+            color: #222;
+            margin: 14px 16px;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin: 0 0 4px;
+            color: #2b579a;
+        }
+
+        .desc {
+            color: #666;
+            margin: 0 0 12px;
+            line-height: 1.5;
+        }
+
+        .group {
+            border: 1px solid #e3e3e3;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .group>.title {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .row {
+            margin: 5px 0;
+        }
+
+        .sub {
+            margin-left: 22px;
+            margin-top: 4px;
+        }
+
+        .sub label {
+            display: inline-block;
+            margin-right: 12px;
+            margin-bottom: 4px;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        button {
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #2b579a;
+            background: #2b579a;
+            color: #fff;
+            margin-left: 6px;
+        }
+
+        button.secondary {
+            background: #fff;
+            color: #2b579a;
+        }
+
+        .hint {
+            color: #888;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        input[type=checkbox] {
+            vertical-align: middle;
+        }
+
+        input[disabled] {
+            opacity: .4;
+        }
+
+        label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>清理并另存为</h2>
+    <p class="desc">把当前 Word 另存为一份「清理后的版本」。勾选要执行的清理项，<b>原文件与修订状态保持不变</b>。设置会被记住，下次自动套用。</p>
+
+    <div class="group">
+        <div class="row"><label><input type="checkbox" id="acceptRevisions"> 接受所有修订（增删改落地为正文）</label></div>
+        <div class="row"><label><input type="checkbox" id="deleteComments"> 删除所有批注</label></div>
+    </div>
+
+    <div class="group">
+        <span class="title"><label><input type="checkbox" id="deletePictures"> 删除图片</label></span>
+        <div class="sub">
+            <label><input type="checkbox" id="picInline"> 内嵌图片</label>
+            <label><input type="checkbox" id="picFloating"> 浮动图片</label>
+            <label><input type="checkbox" id="picHeaderFooter"> 页眉页脚图片</label>
+            <label><input type="checkbox" id="picInTextbox"> 文本框内图片</label>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="secondary" id="btnCancel">取消</button>
+        <button id="btnExecute">选择另存位置并执行…</button>
+    </div>
+    <div class="hint">执行时会再弹出“另存为”让你选择保存位置（默认在原文件同目录，文件名加“_清理版”）。</div>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-// ribbon.js —— WPS 功能区按钮入口
+// ribbon.js —— WM_TOOLS 功能区入口
 
 //加载项第一个执行的函数：保存 ribbonUI 与枚举对象
 function OnAddinLoad(ribbonUI) {
@@ -11,13 +11,19 @@ function OnAddinLoad(ribbonUI) {
     return true;
 }
 
-//按钮点击分发
+//按钮点击分发：打开对应工具的配置对话框
 function OnAction(control) {
-    if (control.Id === "btnSaveFinal") {
+    if (control.Id === "btnCleanup") {
         try {
-            SaveFinalVersion();
+            var dpr = window.devicePixelRatio || 1;
+            window.Application.ShowDialog(
+                GetUrlPath() + "/ui/options.html",
+                "清理并另存为",
+                440 * dpr, 500 * dpr,
+                true // 模态
+            );
         } catch (e) {
-            alert("生成最终版时发生错误：" + (e && e.message ? e.message : e));
+            alert("打开配置对话框失败：" + (e && e.message ? e.message : e));
         }
     }
     return true;
@@ -25,5 +31,14 @@ function OnAction(control) {
 
 //按钮图标
 function GetImage(control) {
-    return "images/final.svg";
+    return "images/cleanup.svg";
+}
+
+//鼠标悬停说明（简短标题 / 详细说明）
+function GetScreentip(control) {
+    return "清理并另存为（不影响原文件）";
+}
+
+function GetSupertip(control) {
+    return "把当前 Word 另存为一份“清理后的版本”：按勾选项接受修订、删除批注、删除各类图片（内嵌/浮动/页眉页脚/文本框内）。原文件与修订状态保持不变。\n点击后弹出选项，可保存为默认配置。";
 }

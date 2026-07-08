@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 文档页 -->
+  <rect x="5" y="3" width="15" height="22" rx="2" fill="#ffffff" stroke="#2b579a" stroke-width="2"/>
+  <line x1="9" y1="9"  x2="16" y2="9"  stroke="#9aa7b5" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="9" y1="13" x2="16" y2="13" stroke="#9aa7b5" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="9" y1="17" x2="13" y2="17" stroke="#9aa7b5" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- 扫帚：手柄 -->
+  <line x1="29" y1="6" x2="20" y2="15" stroke="#8a5a2b" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- 扫帚：刷毛 -->
+  <path d="M19 14 L24 19 Q22 23 17 22 L14 19 Z" fill="#e8b06b" stroke="#8a5a2b" stroke-width="1.2"/>
+  <line x1="16" y1="17" x2="19" y2="20" stroke="#8a5a2b" stroke-width="0.7"/>
+  <line x1="17" y1="16" x2="20" y2="19" stroke="#8a5a2b" stroke-width="0.7"/>
+  <line x1="18" y1="22" x2="15" y2="19" stroke="#8a5a2b" stroke-width="0.7"/>
+</svg>

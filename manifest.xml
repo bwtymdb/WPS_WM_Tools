@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <JsPlugin>
   <ApiVersion>1.0.0</ApiVersion>
-  <Name>SaveFinalDoc</Name>
-  <Description>Word 另存最终版：接受所有修订、删除全部批注、删除全部图片，且不影响原文件与修订状态</Description>
+  <Name>WMTools</Name>
+  <Description>WM_TOOLS —— WPS 文字工具栏。当前工具：清理并另存为（接受修订/删批注/删图片，不影响原文件）。</Description>
 </JsPlugin>
