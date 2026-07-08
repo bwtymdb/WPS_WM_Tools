@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<JsPlugin>
+  <ApiVersion>1.0.0</ApiVersion>
+  <Name>SaveFinalDoc</Name>
+  <Description>Word 另存最终版：接受所有修订、删除全部批注、删除全部图片，且不影响原文件与修订状态</Description>
+</JsPlugin>

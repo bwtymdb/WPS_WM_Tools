@@ -1,0 +1,13 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="OnAddinLoad">
+    <ribbon startFromScratch="false">
+        <tabs>
+            <tab id="finalTab" label="另存最终版">
+                <group id="finalGroup" label="最终版工具">
+                    <button id="btnSaveFinal" label="另存最终版"
+                            onAction="OnAction" getImage="GetImage"
+                            size="large" visible="true"/>
+                </group>
+            </tab>
+        </tabs>
+    </ribbon>
+</customUI>

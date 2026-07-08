@@ -1,0 +1,40 @@
+# ===== 第三方依赖与构建产物（不纳入版本管理）=====
+node_modules/
+dist/
+build/
+publish/
+*.wpsjs
+
+# ===== 敏感信息：账号 / 密码 / 密钥 / 令牌 / 内部服务器地址 =====
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets/
+**/config.local.*
+publish.config.local.*
+
+# ===== 编辑器 / 操作系统 =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ===== 日志 =====
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== 本项目：测试脚本生成的临时产物（脚本本身 verify_com*.ps1 仍纳入管理）=====
+test/*.docx
+test/*.doc
+test/*.png
+test/debug.log
+
+# ===== Claude 本地设置（个人/本机，不共享）=====
+.claude/settings.local.json
