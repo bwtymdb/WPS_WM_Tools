@@ -4,7 +4,7 @@
 # and the original file unchanged (hash).
 $ErrorActionPreference = "Stop"
 
-$root = "D:\Claude\wps_doc_removePicandNote\test"
+$root = "D:\Claude\WPS_WM_Tools\test"
 New-Item -ItemType Directory -Force -Path $root | Out-Null
 $imgPath  = Join-Path $root "pic.png"
 $origPath = Join-Path $root "sample_rich.docx"

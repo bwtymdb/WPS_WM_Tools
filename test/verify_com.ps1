@@ -3,7 +3,7 @@
 #  2) AcceptAllRevisions / Comments / InlineShapes API work; order = turn off track changes first
 $ErrorActionPreference = "Stop"
 
-$root = "D:\Claude\wps_doc_removePicandNote\test"
+$root = "D:\Claude\WPS_WM_Tools\test"
 New-Item -ItemType Directory -Force -Path $root | Out-Null
 $imgPath  = Join-Path $root "pic.png"
 $origPath = Join-Path $root "sample_orig.docx"

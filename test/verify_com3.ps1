@@ -5,7 +5,7 @@
 #           textbox inner pic DELETED (textbox shell kept); revisions accepted; comments gone; orig unchanged.
 $ErrorActionPreference = "Stop"
 
-$root = "D:\Claude\wps_doc_removePicandNote\test"
+$root = "D:\Claude\WPS_WM_Tools\test"
 New-Item -ItemType Directory -Force -Path $root | Out-Null
 $imgPath  = Join-Path $root "pic.png"
 $origPath = Join-Path $root "sample_mix.docx"
