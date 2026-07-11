@@ -32,7 +32,7 @@
 
 ## 四、当前工具
 
-- **清理并另存为…**（`btnCleanup`）：把当前 Word 另存为「清理后的版本」，可勾选：接受所有修订 / 删除所有批注 / 删除图片（内嵌·浮动·页眉页脚·文本框内）。原文件与修订状态不变。逻辑见 `js/finalize.js`，配置面板见 `ui/options.html`。
+- **清理并另存为…**（`btnCleanup`）：把当前 Word 另存为「清理后的版本」，可勾选：接受所有修订 / 删除所有批注 / 删除图片（内嵌·浮动·页眉页脚·文本框内）/ 导出为 Markdown（.md，默认关）。原文件与修订状态不变。勾选 Markdown 时，清理后用随插件打包的 `mammoth.browser.js`（markitdown 的 docx 引擎）转 md，中间 docx 自动删除，纯 JS 无需 Python；文件读写经 `window.Application.FileSystem`（引擎无关）。逻辑见 `js/finalize.js`，配置面板见 `ui/options.html`。
 
 ## 五、维护纪律
 

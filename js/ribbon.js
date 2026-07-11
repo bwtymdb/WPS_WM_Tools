@@ -19,7 +19,7 @@ function OnAction(control) {
             window.Application.ShowDialog(
                 GetUrlPath() + "/ui/options.html",
                 "清理并另存为",
-                440 * dpr, 500 * dpr,
+                440 * dpr, 560 * dpr,
                 true // 模态
             );
         } catch (e) {
@@ -40,5 +40,5 @@ function GetScreentip(control) {
 }
 
 function GetSupertip(control) {
-    return "把当前 Word 另存为一份“清理后的版本”：按勾选项接受修订、删除批注、删除各类图片（内嵌/浮动/页眉页脚/文本框内）。原文件与修订状态保持不变。\n点击后弹出选项，可保存为默认配置。";
+    return "把当前 Word 另存为一份“清理后的版本”：按勾选项接受修订、删除批注、删除各类图片（内嵌/浮动/页眉页脚/文本框内）。原文件与修订状态保持不变。\n还可勾选「导出为 Markdown」：清理后转为 .md，中间 docx 自动删除（纯 JS，无需装 Python）。\n点击后弹出选项，可保存为默认配置。";
 }

@@ -18,6 +18,7 @@
   - 页眉页脚图片
   - 文本框内图片
   （保留文本框、图表、SmartArt、自选图形等非图片对象）
+- **导出为 Markdown 格式（.md）**：与上述清理项并列、默认不勾。不勾则仍另存为 Word；勾选则在清理后把文档转为 Markdown 文件，中间的 `.docx` 自动删除，最终只留一个 `.md`。只勾这一项=原样转 md（图片以 base64 内联）；全勾=先清理图片等再转 md=纯文本 md。**纯 JS 实现**（随插件打包的 `mammoth.browser.js`，即 markitdown 的 docx 引擎），**对方无需安装 Python**。
 
 选项会**自动记住**作为下次默认（存在 WPS `PluginStorage`，键 `WMTools.Cleanup.defaults`）。执行时再弹「另存为」选保存位置（默认原目录、文件名加 `_清理版`）。
 
@@ -68,6 +69,7 @@ js/ribbon.js        按钮入口：OnAction 按 control.Id 分发，打开对应
 js/finalize.js      「清理并另存为」业务逻辑（参数化 SaveFinalVersion(opts)）
 js/options.js       「清理并另存为」配置对话框逻辑（默认配置 PluginStorage 持久化）
 js/util.js          模板自带工具（WPS_Enum / GetUrlPath）
+js/vendor/          Markdown 导出依赖（mammoth.browser.js + es6-promise，随插件打包，无需对方装 Python）
 ui/options.html     「清理并另存为」配置对话框页面
 images/cleanup.svg  按钮图标
 vite.config.js      构建配置

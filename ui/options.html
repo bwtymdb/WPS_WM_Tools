@@ -115,11 +115,16 @@
         </div>
     </div>
 
+    <div class="group">
+        <div class="row"><label><input type="checkbox" id="toMarkdown"> 导出为 Markdown 格式（.md）</label></div>
+        <div class="hint" style="margin-top:4px">勾选后：在上述清理基础上把文档转换为 Markdown 文件（位于所选位置），中间的 .docx 会自动删除，最终只留一个 .md。纯 JS 实现，<b>无需安装 Python</b>。未勾选则仍另存为 Word 文档。</div>
+    </div>
+
     <div class="actions">
         <button class="secondary" id="btnCancel">取消</button>
         <button id="btnExecute">选择另存位置并执行…</button>
     </div>
-    <div class="hint">执行时会再弹出“另存为”让你选择保存位置（默认在原文件同目录，文件名加“_清理版”）。</div>
+    <div class="hint">未勾选「导出为 Markdown」时，执行会弹“另存为”选保存位置；勾选则直接在原文件同目录生成 .md（文件名加“_清理版”，无需选位置）。</div>
 </body>
 
 </html>
