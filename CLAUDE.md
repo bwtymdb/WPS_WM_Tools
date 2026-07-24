@@ -33,6 +33,9 @@
 ## 四、当前工具
 
 - **清理并另存为…**（`btnCleanup`）：把当前 Word 另存为「清理后的版本」，可勾选：接受所有修订 / 删除所有批注 / 删除图片（内嵌·浮动·页眉页脚·文本框内）/ 导出为 Markdown（.md，默认关）。原文件与修订状态不变。勾选 Markdown 时，清理后用随插件打包的 `mammoth.browser.js`（markitdown 的 docx 引擎）转 md，中间 docx 自动删除，纯 JS 无需 Python；文件读写经 `window.Application.FileSystem`（引擎无关）。逻辑见 `js/finalize.js`，配置面板见 `ui/options.html`。
+- **英文引号转中文…**（`btnQuotes`）：选中文字（未选中则全文）内的英文直引号 `"` 成对替换为中文弯引号 `“ ”`；逐段判定开/闭（参考已有弯引号），等长就地替换不破坏格式；可选单引号（默认关，跳过英文撇号）。直接改当前文档，原生 Range 操作进撤销栈，`UndoRecord` 合并为一步 Ctrl+Z（本机 WPS 已实测支持）。逻辑见 `js/quotes.js`，面板见 `ui/quotes.html`；公共助手（作用域/UndoRecord/占位符翻译/手动查找循环）见 `js/textmod.js`。
+- **上下标批量设置…**（`btnSupsub`）：把匹配模式的内容批量设为上标/下标/取消。预设：方括号引用 `[1] [2-5] [1,3]`（默认）、圆括号引用；自定义模式用 `{数字}` `{一串数字}` 等易懂占位符（`js/textmod.js` 翻译为 WPS 通配符并自动转义字面量），面板实时预览通配符 + 「先数一下」只统计不修改。主路径 Find 通配符仅格式替换（`Replacement.Text="^&"` + ReplaceAll，原生一步撤销）；去首尾字符/取消格式走手动循环。逻辑见 `js/supsub.js`，面板见 `ui/supsub.html`。
+  引擎级验证：`test/verify_textmod.ps1`（PASS=10）。
 
 ## 五、维护纪律
 

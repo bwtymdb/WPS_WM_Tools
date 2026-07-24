@@ -8,6 +8,16 @@
                             getScreentip="GetScreentip" getSupertip="GetSupertip"
                             size="large" visible="true"/>
                 </group>
+                <group id="grpText" label="标点格式">
+                    <button id="btnQuotes" label="英文引号转中文…"
+                            onAction="OnAction" getImage="GetImage"
+                            getScreentip="GetScreentip" getSupertip="GetSupertip"
+                            size="large" visible="true"/>
+                    <button id="btnSupsub" label="上下标批量设置…"
+                            onAction="OnAction" getImage="GetImage"
+                            getScreentip="GetScreentip" getSupertip="GetSupertip"
+                            size="large" visible="true"/>
+                </group>
             </tab>
         </tabs>
     </ribbon>

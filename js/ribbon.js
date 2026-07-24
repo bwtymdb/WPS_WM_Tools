@@ -11,34 +11,56 @@ function OnAddinLoad(ribbonUI) {
     return true;
 }
 
+//各工具的对话框配置：control.Id → { url, title, w, h }（宽高为 1x DPR 基准像素）
+var TOOL_DIALOGS = {
+    btnCleanup: { url: "/ui/options.html", title: "清理并另存为", w: 440, h: 560 },
+    btnQuotes:  { url: "/ui/quotes.html",  title: "英文引号转中文", w: 460, h: 420 },
+    btnSupsub:  { url: "/ui/supsub.html",  title: "上下标批量设置", w: 640, h: 780 }
+};
+
 //按钮点击分发：打开对应工具的配置对话框
 function OnAction(control) {
-    if (control.Id === "btnCleanup") {
-        try {
-            var dpr = window.devicePixelRatio || 1;
-            window.Application.ShowDialog(
-                GetUrlPath() + "/ui/options.html",
-                "清理并另存为",
-                440 * dpr, 560 * dpr,
-                true // 模态
-            );
-        } catch (e) {
-            alert("打开配置对话框失败：" + (e && e.message ? e.message : e));
-        }
+    var cfg = TOOL_DIALOGS[control.Id];
+    if (!cfg) return true;
+    try {
+        var dpr = window.devicePixelRatio || 1;
+        window.Application.ShowDialog(
+            GetUrlPath() + cfg.url,
+            cfg.title,
+            cfg.w * dpr, cfg.h * dpr,
+            true // 模态
+        );
+    } catch (e) {
+        alert("打开配置对话框失败：" + (e && e.message ? e.message : e));
     }
     return true;
 }
 
 //按钮图标
 function GetImage(control) {
-    return "images/cleanup.svg";
+    switch (control.Id) {
+        case "btnQuotes": return "images/quotes.svg";
+        case "btnSupsub": return "images/supsub.svg";
+        default: return "images/cleanup.svg";
+    }
 }
 
 //鼠标悬停说明（简短标题 / 详细说明）
 function GetScreentip(control) {
-    return "清理并另存为（不影响原文件）";
+    switch (control.Id) {
+        case "btnQuotes": return "直引号成对转中文引号（可撤销）";
+        case "btnSupsub": return "引用标注等批量设为上标/下标（可撤销）";
+        default: return "清理并另存为（不影响原文件）";
+    }
 }
 
 function GetSupertip(control) {
-    return "把当前 Word 另存为一份“清理后的版本”：按勾选项接受修订、删除批注、删除各类图片（内嵌/浮动/页眉页脚/文本框内）。原文件与修订状态保持不变。\n还可勾选「导出为 Markdown」：清理后转为 .md，中间 docx 自动删除（纯 JS，无需装 Python）。\n点击后弹出选项，可保存为默认配置。";
+    switch (control.Id) {
+        case "btnQuotes":
+            return "把选中文字（未选中则全文）里的英文直引号 \" 成对换成中文弯引号 “ ”，可选单引号。\n直接修改当前文档，可用 Ctrl+Z 撤销。\n点击后弹出选项，可保存为默认配置。";
+        case "btnSupsub":
+            return "把选中文字（未选中则全文）里匹配指定模式的内容（如论文引用 [1]、[2-5]）批量设为上标 / 下标，也可取消。\n内置引用标注预设，自定义模式用易懂占位符（无需懂通配符），可先数命中数再执行。\n直接修改当前文档，可用 Ctrl+Z 撤销。";
+        default:
+            return "把当前 Word 另存为一份“清理后的版本”：按勾选项接受修订、删除批注、删除各类图片（内嵌/浮动/页眉页脚/文本框内）。原文件与修订状态保持不变。\n还可勾选「导出为 Markdown」：清理后转为 .md，中间 docx 自动删除（纯 JS，无需装 Python）。\n点击后弹出选项，可保存为默认配置。";
+    }
 }

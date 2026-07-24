@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="../js/textmod.js"></script>
+    <script type="text/javascript" src="../js/supsub.js"></script>
+    <script type="text/javascript" src="../js/supsub_panel.js"></script>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            font-size: 13px;
+            color: #222;
+            margin: 14px 16px;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin: 0 0 4px;
+            color: #2b579a;
+        }
+
+        .desc {
+            color: #666;
+            margin: 0 0 12px;
+            line-height: 1.5;
+        }
+
+        .group {
+            border: 1px solid #e3e3e3;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .group>.title {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .row {
+            margin: 5px 0;
+        }
+
+        .sub {
+            margin-left: 22px;
+            margin-top: 4px;
+        }
+
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            font-family: Consolas, "Microsoft YaHei", monospace;
+            font-size: 13px;
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        textarea[disabled] {
+            opacity: .4;
+        }
+
+        .token {
+            font-size: 12px;
+            padding: 2px 8px;
+            margin: 2px 4px 2px 0;
+            border: 1px solid #9db3d4;
+            border-radius: 10px;
+            background: #eef3fb;
+            color: #2b579a;
+            cursor: pointer;
+        }
+
+        .token[disabled] {
+            opacity: .4;
+            cursor: default;
+        }
+
+        table.tokens {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        table.tokens th,
+        table.tokens td {
+            border: 1px solid #ddd;
+            padding: 3px 6px;
+            text-align: left;
+        }
+
+        table.tokens th {
+            background: #eef3fb;
+            color: #2b579a;
+        }
+
+        .preview {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .preview code {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 1px 4px;
+            color: #b03535;
+            word-break: break-all;
+        }
+
+        .warn {
+            color: #b03535;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .scope {
+            margin: 8px 0;
+            padding: 6px 8px;
+            background: #eef3fb;
+            border-radius: 4px;
+            color: #2b579a;
+        }
+
+        .count {
+            margin: 6px 0;
+        }
+
+        .count button {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+
+        .count span {
+            margin-left: 8px;
+            color: #2b579a;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .actions button {
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #2b579a;
+            background: #2b579a;
+            color: #fff;
+            margin-left: 6px;
+        }
+
+        .actions button.secondary {
+            background: #fff;
+            color: #2b579a;
+        }
+
+        .hint {
+            color: #888;
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        input[type=checkbox],
+        input[type=radio] {
+            vertical-align: middle;
+        }
+
+        label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>上下标批量设置</h2>
+    <p class="desc">把匹配指定模式的内容（如论文引用 <b>[3-4]</b>）批量设为上标或下标。直接修改当前文档（不是另存副本），<b>可用 Ctrl+Z 撤销</b>。设置会被记住，下次自动套用。</p>
+
+    <div class="group">
+        <span class="title">要处理的内容（三选一）</span>
+        <div class="row"><label><input type="radio" name="preset" id="preset1"> 方括号引用标注：[1]、[2-5]、[1,3] 等（含方括号一起设置，符合论文规范）</label></div>
+        <div class="row"><label><input type="radio" name="preset" id="preset2"> 圆括号引用标注：(1)、（1-3）等（含圆括号一起设置）</label></div>
+        <div class="row"><label><input type="radio" name="preset" id="preset3"> 自定义模式（普通符号原样输入，会自动转义；<b>不是</b>正则表达式）：</label></div>
+        <div class="sub">
+            <textarea id="customPattern" rows="2"></textarea>
+            <div id="tokenBtns"></div>
+            <table class="tokens">
+                <tr><th>占位符</th><th>含义</th><th>匹配示例</th></tr>
+                <tr><td>{数字}</td><td>任意一个数字</td><td>3、7</td></tr>
+                <tr><td>{一串数字}</td><td>一个或多个连续数字</td><td>12、2024</td></tr>
+                <tr><td>{字母}</td><td>任意一个英文字母</td><td>a、Z</td></tr>
+                <tr><td>{一串字母}</td><td>一个或多个连续字母</td><td>abc、OK</td></tr>
+                <tr><td>{汉字}</td><td>任意一个汉字</td><td>引、文</td></tr>
+                <tr><td>{任意字符}</td><td>任意一个字符（含标点）</td><td>只匹配一个字</td></tr>
+                <tr><td>{任意内容}</td><td>任意长度内容（可为空，慎用）</td><td>容易匹配过多</td></tr>
+            </table>
+            <div class="preview">实际使用的 WPS 通配符：<code id="wildcardPreview">…</code></div>
+            <div class="warn" id="patternWarn"></div>
+        </div>
+    </div>
+
+    <div class="group">
+        <span class="title">处理方式</span>
+        <div class="row">
+            <label><input type="radio" name="mode" id="modeSuper"> 设为上标</label>&nbsp;&nbsp;
+            <label><input type="radio" name="mode" id="modeSub"> 设为下标</label>&nbsp;&nbsp;
+            <label><input type="radio" name="mode" id="modeClear"> 取消上下标（恢复正常）</label>
+        </div>
+        <div class="row"><label><input type="checkbox" id="trimEnds"> 设置时不包含命中文字的首尾各 1 个字符（例如不想把 [ ] 括号本身设为上标时勾选）</label></div>
+    </div>
+
+    <div class="scope">本次将作用于：<b id="scopeLabel">…</b>（在文档中选中文字则只处理选区，否则处理全文）</div>
+
+    <div class="count">
+        <button type="button" class="secondary" id="btnCount">先数一下（不修改）</button>
+        <span id="countResult"></span>
+    </div>
+
+    <div class="actions">
+        <button class="secondary" id="btnCancel">取消</button>
+        <button id="btnExecute">执行设置</button>
+    </div>
+    <div class="hint">格式化的是<b>整个命中片段</b>（可选去掉首尾各 1 字符）；「只把片段中间的某个字符设为上/下标」（如 H₂O 中的 2）暂不支持。只处理正文（不含页眉页脚、文本框）。</div>
+</body>
+
+</html>

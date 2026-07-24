@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="../js/textmod.js"></script>
+    <script type="text/javascript" src="../js/quotes.js"></script>
+    <script type="text/javascript" src="../js/quotes_panel.js"></script>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            font-size: 13px;
+            color: #222;
+            margin: 14px 16px;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin: 0 0 4px;
+            color: #2b579a;
+        }
+
+        .desc {
+            color: #666;
+            margin: 0 0 12px;
+            line-height: 1.5;
+        }
+
+        .group {
+            border: 1px solid #e3e3e3;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .group>.title {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .row {
+            margin: 5px 0;
+        }
+
+        .scope {
+            margin: 8px 0;
+            padding: 6px 8px;
+            background: #eef3fb;
+            border-radius: 4px;
+            color: #2b579a;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        button {
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #2b579a;
+            background: #2b579a;
+            color: #fff;
+            margin-left: 6px;
+        }
+
+        button.secondary {
+            background: #fff;
+            color: #2b579a;
+        }
+
+        .hint {
+            color: #888;
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        input[type=checkbox] {
+            vertical-align: middle;
+        }
+
+        label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>英文引号转中文</h2>
+    <p class="desc">把英文直引号 <b>"</b> 成对换成中文弯引号 <b>“ ”</b>。直接修改当前文档（不是另存副本），<b>可用 Ctrl+Z 撤销</b>。设置会被记住，下次自动套用。</p>
+
+    <div class="group">
+        <span class="title">要转换的引号</span>
+        <div class="row"><label><input type="checkbox" id="optDouble"> 双引号 " → “ ”（成对判定左右）</label></div>
+        <div class="row"><label><input type="checkbox" id="optSingle"> 单引号 ' → ‘ ’（会自动跳过 don't 这类英文撇号）</label></div>
+    </div>
+
+    <div class="scope">本次将作用于：<b id="scopeLabel">…</b>（在文档中选中文字则只处理选区，否则处理全文）</div>
+
+    <div class="actions">
+        <button class="secondary" id="btnCancel">取消</button>
+        <button id="btnExecute">开始转换</button>
+    </div>
+    <div class="hint">判定方式：逐段按出现顺序成对判定开/闭引号，段与段互不影响；只处理正文（不含页眉页脚、文本框）。</div>
+</body>
+
+</html>
