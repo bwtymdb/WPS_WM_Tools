@@ -36,6 +36,8 @@
 - **英文引号转中文…**（`btnQuotes`）：选中文字（未选中则全文）内的英文直引号 `"` 成对替换为中文弯引号 `“ ”`；逐段判定开/闭（参考已有弯引号），等长就地替换不破坏格式；可选单引号（默认关，跳过英文撇号）。直接改当前文档，原生 Range 操作进撤销栈，`UndoRecord` 合并为一步 Ctrl+Z（本机 WPS 已实测支持）。逻辑见 `js/quotes.js`，面板见 `ui/quotes.html`；公共助手（作用域/UndoRecord/占位符翻译/手动查找循环）见 `js/textmod.js`。
 - **上下标批量设置…**（`btnSupsub`）：把匹配模式的内容批量设为上标/下标/取消。预设：方括号引用 `[1] [2-5] [1,3]`（默认）、圆括号引用；自定义模式用 `{数字}` `{一串数字}` 等易懂占位符（`js/textmod.js` 翻译为 WPS 通配符并自动转义字面量），面板实时预览通配符 + 「先数一下」只统计不修改。主路径 Find 通配符仅格式替换（`Replacement.Text="^&"` + ReplaceAll，原生一步撤销）；去首尾字符/取消格式走手动循环。逻辑见 `js/supsub.js`，面板见 `ui/supsub.html`。
   引擎级验证：`test/verify_textmod.ps1`（PASS=10）。
+- **Markdown 排版…**（`btnMarkdown`，分组「标点与排版」）：把粘贴进 Word 的 Markdown 原始文本一键转正常排版。面板自动检测各类元素数量、按类勾选（默认全开）、PluginStorage 记默认（键 `WMTools.Markdown.defaults`）。支持：标题（默认内置标题 1~6 样式，可切直接格式化）、加粗/斜体/删除线/行内代码/超链接、无序+有序原生列表（中文 WPS 默认编号是「一、」，须用自定义 ListTemplate `NumberStyle=0 + NumberFormat="%1."` 强制阿拉伯数字）、管道表格 → 真实 Word 表格（首行加粗/对齐/边框）、代码块（Consolas+浅灰底纹，内容字面保留）、引用（左缩进+左竖线）、分割线（段落下框线）。实现：结构 Phase A 按块自底向上（列表先 ListFormat 再倒序删行首标记；表格先倒序删原文再 Tables.Add 填充）；行内 Phase B 重新逐段、段内命中从右往左（先删标记再设格式；粗/斜用 `(\*{1,2})([^*\s][^*]*)\1` 等长星号对统一匹配，避免伪匹配）；代码段凭 `Font.NameAscii=="Consolas"` 跳过行内处理。全程原生操作 + `UndoRecord` 一步 Ctrl+Z，删除前关 `TrackRevisions`。逻辑见 `js/markdown.js`，面板见 `ui/markdown.html`。
+  验证：`test/verify_markdown.ps1`（COM 原语，PASS=26）、`test/md_parse_test.js`（Node 解析单测，PASS=23）、`test/md_e2e.js`（cscript 端到端跑真实 ConvertMarkdown + 选区作用域 + 一步撤销，PASS=38；**该文件必须纯 ASCII**，中文注释会被 cscript 按 GBK 误读而静默损坏代码）。
 
 ## 五、维护纪律
 

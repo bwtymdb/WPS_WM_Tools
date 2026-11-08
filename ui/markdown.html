@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="../js/textmod.js"></script>
+    <script type="text/javascript" src="../js/markdown.js"></script>
+    <script type="text/javascript" src="../js/markdown_panel.js"></script>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            font-size: 13px;
+            color: #222;
+            margin: 14px 16px;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin: 0 0 4px;
+            color: #2b579a;
+        }
+
+        .desc {
+            color: #666;
+            margin: 0 0 10px;
+            line-height: 1.5;
+        }
+
+        .group {
+            border: 1px solid #e3e3e3;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .group>.title {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .row {
+            margin: 5px 0;
+        }
+
+        .row.indent {
+            margin-left: 24px;
+            color: #555;
+        }
+
+        .scope {
+            margin: 8px 0;
+            padding: 6px 8px;
+            background: #eef3fb;
+            border-radius: 4px;
+            color: #2b579a;
+        }
+
+        .stats {
+            margin: 0 0 10px;
+            padding: 6px 8px;
+            background: #f6f8f4;
+            border: 1px solid #e0e6dc;
+            border-radius: 4px;
+            color: #3a5a2a;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        button {
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #2b579a;
+            background: #2b579a;
+            color: #fff;
+            margin-left: 6px;
+        }
+
+        button.secondary {
+            background: #fff;
+            color: #2b579a;
+        }
+
+        .hint {
+            color: #888;
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        input[type=checkbox], input[type=radio] {
+            vertical-align: middle;
+        }
+
+        label {
+            cursor: pointer;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            background: #eee;
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Markdown 排版</h2>
+    <p class="desc">把粘贴进来的 Markdown 原始文字（<code>#</code> <code>**</code> <code>-</code> <code>|</code> 等符号）转成正常排版：标题样式、加粗、列表、表格等。直接修改当前文档，<b>Ctrl+Z 一步撤销</b>。勾选会被记住，下次自动套用。</p>
+
+    <div class="scope">本次将作用于：<b id="scopeLabel">…</b>（选中文字则只处理选区，否则处理全文）</div>
+    <div class="stats" id="statsBox">正在检测…</div>
+
+    <div class="group">
+        <span class="title">结构元素（整行/整段）</span>
+        <div class="row"><label><input type="checkbox" id="optHeadings"> 标题：<code>#</code> ~ <code>######</code> 前缀</label></div>
+        <div class="row indent"><label><input type="radio" name="headingMode" id="modeStyle"> 用内置「标题 1~6」样式（可导航、可生成目录）</label></div>
+        <div class="row indent"><label><input type="radio" name="headingMode" id="modeFormat"> 直接格式化：加粗+逐级字号，保留原字体</label></div>
+        <div class="row"><label><input type="checkbox" id="optUl"> 无序列表：<code>- </code> <code>* </code> <code>+ </code> → 项目符号列表</label></div>
+        <div class="row"><label><input type="checkbox" id="optOl"> 有序列表：<code>1. </code> → 自动编号列表（1. 2. 3.）</label></div>
+        <div class="row"><label><input type="checkbox" id="optTable"> 表格：<code>| 列 | 列 |</code> 管道行 → 真正的 Word 表格（首行加粗）</label></div>
+        <div class="row"><label><input type="checkbox" id="optCodeBlock"> 代码块：<code>```</code> 围栏 → 等宽字体 + 浅灰底纹（内容原样保留）</label></div>
+        <div class="row"><label><input type="checkbox" id="optQuote"> 引用：<code>&gt; </code> → 左缩进 + 左侧竖线</label></div>
+        <div class="row"><label><input type="checkbox" id="optHr"> 分割线：<code>---</code> <code>***</code> 整行 → 横线（段落下框线）</label></div>
+    </div>
+
+    <div class="group">
+        <span class="title">行内元素（句子中间）</span>
+        <div class="row"><label><input type="checkbox" id="optBold"> 加粗：<code>**文字**</code></label></div>
+        <div class="row"><label><input type="checkbox" id="optItalic"> 斜体：<code>*文字*</code></label></div>
+        <div class="row"><label><input type="checkbox" id="optStrike"> 删除线：<code>~~文字~~</code></label></div>
+        <div class="row"><label><input type="checkbox" id="optInlineCode"> 行内代码：<code>`代码`</code> → Consolas 等宽字体</label></div>
+        <div class="row"><label><input type="checkbox" id="optLink"> 超链接：<code>[文字](网址)</code> → 保留文字、可点击</label></div>
+    </div>
+
+    <div class="actions">
+        <button class="secondary" id="btnRescan">重新检测</button>
+        <button class="secondary" id="btnCancel">取消</button>
+        <button id="btnExecute">开始排版</button>
+    </div>
+    <div class="hint">只处理正文（不含页眉页脚、文本框）；代码块围栏未闭合、表格列数不齐时保留原文不转换；列表缩进支持两级；图片语法 ![..](..) 不下载图片，按普通文字保留。</div>
+</body>
+
+</html>

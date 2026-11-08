@@ -46,6 +46,17 @@
 
 选项自动记住（键 `WMTools.Supsub.defaults`）。逻辑见 `js/supsub.js`，配置面板见 `ui/supsub.html`。
 
+### Markdown 排版… （`btnMarkdown`）
+
+AI 生成的 Markdown 文字粘贴进 Word 后满篇 `#`、`**`、`-` 原始符号？一键转成正常排版。面板打开时**自动检测**作用域内各类元素数量，每类可单独勾选（默认全开），执行后报告各类转换数量。
+
+- **结构元素**：`#`~`######` 标题（默认内置「标题 1~6」样式，可切「直接格式化：加粗+逐级字号、保留原字体」）；`-`/`*`/`+` 无序列表 → 原生项目符号；`1.` 有序列表 → 原生阿拉伯数字编号（中文 WPS 默认给「一、」，已用自定义 ListTemplate 强制 `1.`）；`| 管道表格 |` → 真正的 Word 表格（首行加粗、`:---:` 对齐映射、全边框）；` ``` ` 代码块 → Consolas 等宽+浅灰底纹（内容字面保留）；`>` 引用 → 左缩进+左侧竖线；`---` 分割线 → 段落下框线。
+- **行内元素**：`**加粗**`、`*斜体*`、`~~删除线~~`、`` `行内代码` ``（Consolas）、`[文字](网址)` → 可点击超链接；图片语法不下载、按普通文字保留。
+- **作用范围 / 可撤销**：选中文字只处理选区，否则全文；全部原生 Range/Tables/Hyperlinks 操作 + `UndoRecord` 合并，**Ctrl+Z 一步完全还原**；删除文字前自动关闭 `TrackRevisions`。
+- **容错**：围栏未闭合不当代码块；表格列数不齐保留原文并提示跳过数；只处理正文；列表缩进支持两级。
+
+选项自动记住（键 `WMTools.Markdown.defaults`）。逻辑见 `js/markdown.js`（结构 Phase A 自底向上、行内 Phase B 段内从右往左；粗/斜用「等长星号对」统一匹配），配置面板见 `ui/markdown.html`。
+
 ## 安装到 WPS（日常使用 / 分享给别人）
 
 加载项装一次就**常驻**在 WPS 里，以后每次开 WPS 都自动出现「WM_TOOLS」标签，**不需要任何后台服务、不联网**。
@@ -95,18 +106,24 @@ js/quotes.js        「英文引号转中文」业务逻辑（ConvertStraightQuo
 js/quotes_panel.js  「英文引号转中文」配置对话框逻辑
 js/supsub.js        「上下标批量设置」业务逻辑（ApplyVertAlign(opts) / CountSupsubMatches(opts)）
 js/supsub_panel.js  「上下标批量设置」配置对话框逻辑
+js/markdown.js      「Markdown 排版」业务逻辑（AnalyzeMarkdown() / ConvertMarkdown(opts)；纯解析函数可被 Node 单测）
+js/markdown_panel.js「Markdown 排版」配置对话框逻辑（自动检测统计）
 js/util.js          模板自带工具（WPS_Enum / GetUrlPath）
 js/vendor/          Markdown 导出依赖（mammoth.browser.js + es6-promise，随插件打包，无需对方装 Python）
 ui/options.html     「清理并另存为」配置对话框页面
 ui/quotes.html      「英文引号转中文」配置对话框页面
 ui/supsub.html      「上下标批量设置」配置对话框页面
-images/*.svg        按钮图标（cleanup / quotes / supsub）
+ui/markdown.html    「Markdown 排版」配置对话框页面
+images/*.svg        按钮图标（cleanup / quotes / supsub / markdown）
 vite.config.js      构建配置
 install.ps1         离线安装脚本（核心逻辑；读取 package.json 的 name/version）
 安装到WPS.bat       双击即装（调用 install.ps1）
 CLAUDE.md           项目开发规范（新增工具必读）
 test/verify_com*.ps1 引擎级验证脚本（COM 复刻核心调用 + 原文件哈希比对）
 test/verify_textmod.ps1 引擎级验证脚本（引号成对转换/仅格式替换/撤销）
+test/verify_markdown.ps1 Markdown 工具的 WPS COM 原语验证（26 项）
+test/md_parse_test.js  Markdown 纯解析函数 Node 单测（23 项）
+test/md_e2e.js         Markdown 端到端验证（cscript 加载真实 js 在临时文档上跑 ConvertMarkdown，38 项；文件必须纯 ASCII）
 ```
 
 ## 新增一个工具（统一模式）
@@ -126,10 +143,14 @@ test/verify_textmod.ps1 引擎级验证脚本（引号成对转换/仅格式替�
 powershell -ExecutionPolicy Bypass -File test\verify_com.ps1
 powershell -ExecutionPolicy Bypass -File test\verify_com2.ps1
 powershell -ExecutionPolicy Bypass -File test\verify_textmod.ps1
+powershell -ExecutionPolicy Bypass -File test\verify_markdown.ps1
+node test\md_parse_test.js
+cscript //E:JScript //NoLogo test\md_e2e.js
 ```
 
 应输出 `[final] revisions=0 comments=0 ...` 与 `[PASS] original file unchanged`；
 `verify_textmod.ps1` 应输出 `summary: PASS=10 FAIL=0`（引号成对转换、仅格式替换、单步撤销）。
+Markdown 工具：`verify_markdown.ps1` 输出 `RESULT PASS=26 FAIL=0`；`md_parse_test.js` 输出 `RESULT PASS=23 FAIL=0`；`md_e2e.js` 输出 `RESULT PASS=38 FAIL=0`（真实转换 + 选区作用域 + 一步撤销还原）。
 
 ### 端到端（手动）
 
